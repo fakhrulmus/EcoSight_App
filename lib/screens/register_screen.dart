@@ -1,6 +1,8 @@
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:lucide_icons/lucide_icons.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:ecosight_app/screens/login_screen.dart';
 import 'package:ecosight_app/screens/profile_screen.dart';
 
@@ -15,12 +17,88 @@ class _RegisterScreenState extends State<RegisterScreen> {
   bool _showPassword = false;
   bool _showConfirmPassword = false;
   bool _agreeToTerms = false;
+  bool _isLoading = false;
 
-  void _handleRegister() {
-    Navigator.pushReplacement(
-      context,
-      MaterialPageRoute(builder: (context) => const ProfileScreen()),
-    );
+  final TextEditingController _nameController = TextEditingController();
+  final TextEditingController _emailController = TextEditingController();
+  final TextEditingController _phoneController = TextEditingController();
+  final TextEditingController _passwordController = TextEditingController();
+  final TextEditingController _confirmPasswordController = TextEditingController();
+
+  @override
+  void dispose() {
+    _nameController.dispose();
+    _emailController.dispose();
+    _phoneController.dispose();
+    _passwordController.dispose();
+    _confirmPasswordController.dispose();
+    super.dispose();
+  }
+
+  Future<void> _handleRegister() async {
+    if (!_agreeToTerms) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Please agree to the Terms of Service')),
+      );
+      return;
+    }
+
+    if (_nameController.text.isEmpty ||
+        _emailController.text.isEmpty ||
+        _phoneController.text.isEmpty ||
+        _passwordController.text.isEmpty ||
+        _confirmPasswordController.text.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Please fill in all fields')),
+      );
+      return;
+    }
+
+    if (_passwordController.text != _confirmPasswordController.text) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Passwords do not match')),
+      );
+      return;
+    }
+
+    setState(() {
+      _isLoading = true;
+    });
+
+    try {
+      UserCredential userCredential = await FirebaseAuth.instance.createUserWithEmailAndPassword(
+        email: _emailController.text.trim(),
+        password: _passwordController.text,
+      );
+      
+      await userCredential.user?.updateDisplayName(_nameController.text.trim());
+
+      await FirebaseFirestore.instance.collection('users').doc(userCredential.user!.uid).set({
+        'name': _nameController.text.trim(),
+        'email': _emailController.text.trim(),
+        'phone': _phoneController.text.trim(),
+        'createdAt': FieldValue.serverTimestamp(),
+      });
+
+      if (mounted) {
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (context) => const ProfileScreen()),
+        );
+      }
+    } on FirebaseAuthException catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(e.message ?? 'Registration failed. Please try again.')),
+        );
+      }
+    } finally {
+      if (mounted) {
+        setState(() {
+          _isLoading = false;
+        });
+      }
+    }
   }
 
   void _switchToLogin() {
@@ -96,6 +174,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                         _buildTextField(
                           hintText: 'Full name',
                           icon: LucideIcons.user,
+                          controller: _nameController,
                         ),
                         const SizedBox(height: 16),
 
@@ -104,6 +183,16 @@ class _RegisterScreenState extends State<RegisterScreen> {
                           hintText: 'Email address',
                           icon: LucideIcons.mail,
                           keyboardType: TextInputType.emailAddress,
+                          controller: _emailController,
+                        ),
+                        const SizedBox(height: 16),
+
+                        // Phone Input
+                        _buildTextField(
+                          hintText: 'Phone number',
+                          icon: LucideIcons.phone,
+                          keyboardType: TextInputType.phone,
+                          controller: _phoneController,
                         ),
                         const SizedBox(height: 16),
 
@@ -112,6 +201,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                           hintText: 'Password',
                           icon: LucideIcons.lock,
                           obscureText: !_showPassword,
+                          controller: _passwordController,
                           suffixIcon: IconButton(
                             icon: Icon(
                               _showPassword ? LucideIcons.eyeOff : LucideIcons.eye,
@@ -131,6 +221,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                           hintText: 'Confirm password',
                           icon: LucideIcons.lock,
                           obscureText: !_showConfirmPassword,
+                          controller: _confirmPasswordController,
                           suffixIcon: IconButton(
                             icon: Icon(
                               _showConfirmPassword ? LucideIcons.eyeOff : LucideIcons.eye,
@@ -205,7 +296,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
 
                         // Sign Up Button
                         ElevatedButton(
-                          onPressed: _handleRegister,
+                          onPressed: _isLoading ? null : _handleRegister,
                           style: ElevatedButton.styleFrom(
                             backgroundColor: const Color(0xFF10B981),
                             foregroundColor: Colors.white,
@@ -215,13 +306,22 @@ class _RegisterScreenState extends State<RegisterScreen> {
                             ),
                             elevation: 0,
                           ),
-                          child: const Text(
-                            'Create Account',
-                            style: TextStyle(
-                              fontSize: 18,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
+                          child: _isLoading
+                              ? const SizedBox(
+                                  height: 24,
+                                  width: 24,
+                                  child: CircularProgressIndicator(
+                                    color: Colors.white,
+                                    strokeWidth: 2,
+                                  ),
+                                )
+                              : const Text(
+                                  'Create Account',
+                                  style: TextStyle(
+                                    fontSize: 18,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
                         ),
                         const SizedBox(height: 24),
 
@@ -267,8 +367,10 @@ class _RegisterScreenState extends State<RegisterScreen> {
     bool obscureText = false,
     TextInputType? keyboardType,
     Widget? suffixIcon,
+    TextEditingController? controller,
   }) {
     return TextField(
+      controller: controller,
       obscureText: obscureText,
       keyboardType: keyboardType,
       style: const TextStyle(color: Color(0xFF1F2937)),

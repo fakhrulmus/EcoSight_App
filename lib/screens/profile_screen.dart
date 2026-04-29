@@ -1,19 +1,26 @@
 import 'package:flutter/material.dart';
 import 'package:lucide_icons/lucide_icons.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:ecosight_app/screens/login_screen.dart';
 
 class ProfileScreen extends StatelessWidget {
   const ProfileScreen({super.key});
 
-  void _handleLogout(BuildContext context) {
-    Navigator.pushReplacement(
-      context,
-      MaterialPageRoute(builder: (context) => const LoginScreen()),
-    );
+  Future<void> _handleLogout(BuildContext context) async {
+    await FirebaseAuth.instance.signOut();
+    if (context.mounted) {
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (context) => const LoginScreen()),
+      );
+    }
   }
 
   @override
   Widget build(BuildContext context) {
+    final user = FirebaseAuth.instance.currentUser;
+    
     return Scaffold(
       backgroundColor: const Color(0xFFF9FAFB), // Very light grey
       appBar: AppBar(
@@ -25,10 +32,23 @@ class ProfileScreen extends StatelessWidget {
         ),
         centerTitle: true,
       ),
-      body: SingleChildScrollView(
-        child: Column(
-          children: [
-            // Header section with avatar
+      body: user == null ? const Center(child: Text('Not logged in')) : FutureBuilder<DocumentSnapshot>(
+        future: FirebaseFirestore.instance.collection('users').doc(user.uid).get(),
+        builder: (context, snapshot) {
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return const Center(child: CircularProgressIndicator());
+          }
+          
+          String phone = 'Not provided';
+          if (snapshot.hasData && snapshot.data!.exists) {
+            final data = snapshot.data!.data() as Map<String, dynamic>;
+            phone = data['phone'] ?? 'Not provided';
+          }
+
+          return SingleChildScrollView(
+            child: Column(
+              children: [
+                // Header section with avatar
             Container(
               width: double.infinity,
               padding: const EdgeInsets.only(bottom: 32, top: 24),
@@ -51,9 +71,9 @@ class ProfileScreen extends StatelessWidget {
                     ),
                   ),
                   const SizedBox(height: 16),
-                  const Text(
-                    'John Doe',
-                    style: TextStyle(
+                  Text(
+                    user.displayName?.isNotEmpty == true ? user.displayName! : 'EcoSight User',
+                    style: const TextStyle(
                       fontSize: 24,
                       fontWeight: FontWeight.bold,
                       color: Colors.white,
@@ -61,8 +81,8 @@ class ProfileScreen extends StatelessWidget {
                   ),
                   const SizedBox(height: 4),
                   Text(
-                    'johndoe@example.com',
-                    style: TextStyle(
+                    user.email ?? 'No email provided',
+                    style: const TextStyle(
                       fontSize: 16,
                       color: Colors.white70,
                     ),
@@ -81,19 +101,13 @@ class ProfileScreen extends StatelessWidget {
                   _buildProfileCard(
                     icon: LucideIcons.mail,
                     title: 'Email',
-                    value: 'johndoe@example.com',
+                    value: user.email ?? 'Not provided',
                   ),
                   const SizedBox(height: 16),
                   _buildProfileCard(
                     icon: LucideIcons.phone,
                     title: 'Phone',
-                    value: '+1 234 567 8900',
-                  ),
-                  const SizedBox(height: 16),
-                  _buildProfileCard(
-                    icon: LucideIcons.mapPin,
-                    title: 'Location',
-                    value: 'New York, USA',
+                    value: phone,
                   ),
 
                   const SizedBox(height: 32),
@@ -124,6 +138,8 @@ class ProfileScreen extends StatelessWidget {
             ),
           ],
         ),
+      );
+        },
       ),
     );
   }
@@ -140,7 +156,7 @@ class ProfileScreen extends StatelessWidget {
         borderRadius: BorderRadius.circular(16),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.03),
+            color: Colors.black.withValues(alpha: 0.03),
             blurRadius: 10,
             offset: const Offset(0, 4),
           ),
@@ -151,7 +167,7 @@ class ProfileScreen extends StatelessWidget {
           Container(
             padding: const EdgeInsets.all(10),
             decoration: BoxDecoration(
-              color: const Color(0xFF10B981).withOpacity(0.1),
+              color: const Color(0xFF10B981).withValues(alpha: 0.1),
               borderRadius: BorderRadius.circular(12),
             ),
             child: Icon(
