@@ -16,7 +16,7 @@ class _MainNavigationScreenState extends State<MainNavigationScreen> {
 
   final List<Widget> _screens = [
     const HomeScreen(),
-    ActivityScreen(), // Note: ActivityScreen in the project is not const and has no constructor with key
+    const ActivityScreen(),
     const ProfileScreen(),
   ];
 
