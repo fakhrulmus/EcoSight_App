@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:lucide_icons/lucide_icons.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 
 class Activity {
   final int id;
@@ -32,18 +34,110 @@ class ActivityDetailScreen extends StatefulWidget {
 
 class _ActivityDetailScreenState extends State<ActivityDetailScreen> {
   bool _isJoined = false;
+  bool _isLoading = false;
+  bool _isChecking = true;
 
-  void _handleJoin() {
-    setState(() {
-      _isJoined = true;
-    });
-    
-    // Simulate join process
-    Future.delayed(const Duration(seconds: 2), () {
+  @override
+  void initState() {
+    super.initState();
+    _checkIfJoined();
+  }
+
+  Future<void> _checkIfJoined() async {
+    final user = FirebaseAuth.instance.currentUser;
+    if (user == null) {
+      setState(() {
+        _isChecking = false;
+      });
+      return;
+    }
+    try {
+      final snapshot = await FirebaseFirestore.instance
+          .collection('participation')
+          .where('userId', isEqualTo: user.uid)
+          .where('activityId', isEqualTo: widget.activity.id.toString())
+          .get();
       if (mounted) {
-        Navigator.pop(context, true); // Return true to indicate joined
+        setState(() {
+          _isJoined = snapshot.docs.isNotEmpty;
+          _isChecking = false;
+        });
       }
+    } catch (e) {
+      if (mounted) {
+        setState(() {
+          _isChecking = false;
+        });
+      }
+    }
+  }
+
+  Future<void> _handleJoin() async {
+    final user = FirebaseAuth.instance.currentUser;
+    if (user == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Please log in to join activities.')),
+      );
+      return;
+    }
+
+    setState(() {
+      _isLoading = true;
     });
+
+    try {
+      // Prevent duplicate joins double-check
+      final snapshot = await FirebaseFirestore.instance
+          .collection('participation')
+          .where('userId', isEqualTo: user.uid)
+          .where('activityId', isEqualTo: widget.activity.id.toString())
+          .get();
+
+      if (snapshot.docs.isNotEmpty) {
+        if (mounted) {
+          setState(() {
+            _isJoined = true;
+            _isLoading = false;
+          });
+        }
+        return;
+      }
+
+      // Save to participation collection
+      await FirebaseFirestore.instance.collection('participation').add({
+        'userId': user.uid,
+        'activityId': widget.activity.id.toString(),
+        'activityName': widget.activity.title,
+        'activityDate': widget.activity.date,
+        'activityTime': widget.activity.time,
+        'activityLocation': widget.activity.location,
+        'joinDate': FieldValue.serverTimestamp(),
+        'status': 'Joined',
+      });
+
+      if (mounted) {
+        setState(() {
+          _isJoined = true;
+          _isLoading = false;
+        });
+
+        // Show green visual then pop back after 2 seconds
+        Future.delayed(const Duration(seconds: 2), () {
+          if (mounted) {
+            Navigator.pop(context, true); // Return true to indicate joined
+          }
+        });
+      }
+    } catch (e) {
+      if (mounted) {
+        setState(() {
+          _isLoading = false;
+        });
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Error: ${e.toString()}')),
+        );
+      }
+    }
   }
 
   @override
@@ -157,10 +251,19 @@ class _ActivityDetailScreenState extends State<ActivityDetailScreen> {
                           'Meet at the main entrance',
                         ),
                         const SizedBox(height: 16),
-                        _buildInfoRow(
-                          LucideIcons.users,
-                          '24 students joined',
-                          'Be one of the changemakers',
+                        StreamBuilder<QuerySnapshot>(
+                          stream: FirebaseFirestore.instance
+                              .collection('participation')
+                              .where('activityId', isEqualTo: widget.activity.id.toString())
+                              .snapshots(),
+                          builder: (context, snapshot) {
+                            final count = snapshot.hasData ? snapshot.data!.docs.length : 0;
+                            return _buildInfoRow(
+                              LucideIcons.users,
+                              '$count student${count == 1 ? "" : "s"} joined',
+                              'Be one of the changemakers',
+                            );
+                          },
                         ),
                       ],
                     ),
@@ -168,11 +271,20 @@ class _ActivityDetailScreenState extends State<ActivityDetailScreen> {
                   const SizedBox(height: 32),
 
                   // Action Button
-                  if (!_isJoined)
+                  if (_isChecking)
+                    const Center(
+                      child: Padding(
+                        padding: EdgeInsets.symmetric(vertical: 16),
+                        child: CircularProgressIndicator(
+                          color: Color(0xFF16A34A),
+                        ),
+                      ),
+                    )
+                  else if (!_isJoined)
                     SizedBox(
                       width: double.infinity,
                       child: ElevatedButton(
-                        onPressed: _handleJoin,
+                        onPressed: _isLoading ? null : _handleJoin,
                         style: ElevatedButton.styleFrom(
                           backgroundColor: const Color(0xFF16A34A),
                           foregroundColor: Colors.white,
@@ -183,13 +295,22 @@ class _ActivityDetailScreenState extends State<ActivityDetailScreen> {
                           elevation: 8,
                           shadowColor: const Color(0xFF16A34A).withOpacity(0.4),
                         ),
-                        child: const Text(
-                          'Join Activity',
-                          style: TextStyle(
-                            fontSize: 18,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
+                        child: _isLoading
+                            ? const SizedBox(
+                                height: 24,
+                                width: 24,
+                                child: CircularProgressIndicator(
+                                  color: Colors.white,
+                                  strokeWidth: 2,
+                                ),
+                              )
+                            : const Text(
+                                'Join Activity',
+                                style: TextStyle(
+                                  fontSize: 18,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
                       ),
                     )
                   else

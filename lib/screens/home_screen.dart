@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:lucide_icons/lucide_icons.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 
 class HomeScreen extends StatelessWidget {
   const HomeScreen({super.key});
@@ -70,7 +72,16 @@ class HomeScreen extends StatelessWidget {
                       children: [
                         _buildStat('12', 'Trees'),
                         _buildStat('45kg', 'Recycled'),
-                        _buildStat('8', 'Events'),
+                        StreamBuilder<QuerySnapshot>(
+                          stream: FirebaseFirestore.instance
+                              .collection('participation')
+                              .where('userId', isEqualTo: FirebaseAuth.instance.currentUser?.uid ?? '')
+                              .snapshots(),
+                          builder: (context, snapshot) {
+                            final count = snapshot.hasData ? snapshot.data!.docs.length : 0;
+                            return _buildStat(count.toString(), 'Events');
+                          },
+                        ),
                       ],
                     ),
                   ],

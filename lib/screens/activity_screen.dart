@@ -3,6 +3,8 @@ import 'package:lucide_icons/lucide_icons.dart';
 import 'activity_detail_screen.dart';
 
 class ActivityScreen extends StatefulWidget {
+  const ActivityScreen({super.key});
+
   @override
   _ActivityScreenState createState() => _ActivityScreenState();
 }
