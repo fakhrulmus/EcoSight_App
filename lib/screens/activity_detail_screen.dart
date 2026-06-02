@@ -11,6 +11,7 @@ class Activity {
   final String location;
   final IconData icon;
   final String description;
+  final int impactPoints;
 
   Activity({
     required this.id,
@@ -20,6 +21,7 @@ class Activity {
     required this.location,
     required this.icon,
     required this.description,
+    this.impactPoints = 25,
   });
 
   factory Activity.fromFirestore(DocumentSnapshot doc) {
@@ -32,6 +34,7 @@ class Activity {
       location: data['location'] ?? '',
       icon: _categoryToIcon(data['category'] ?? 'general'),
       description: data['description'] ?? '',
+      impactPoints: (data['impactPoints'] as int?) ?? 25,
     );
   }
 
@@ -119,6 +122,7 @@ class _ActivityDetailScreenState extends State<ActivityDetailScreen> {
     try {
       final batch = FirebaseFirestore.instance.batch();
 
+      // Record participation
       final participantRef = FirebaseFirestore.instance
           .collection('events')
           .doc(widget.activity.id)
@@ -129,15 +133,27 @@ class _ActivityDetailScreenState extends State<ActivityDetailScreen> {
         'userId': user.uid,
         'name': user.displayName ?? '',
         'email': user.email ?? '',
+        'impactPoints': widget.activity.impactPoints,
         'joinedAt': FieldValue.serverTimestamp(),
       });
 
+      // Increment event participant count
       final eventRef = FirebaseFirestore.instance
           .collection('events')
           .doc(widget.activity.id);
 
       batch.update(eventRef, {
         'participantCount': FieldValue.increment(1),
+      });
+
+      // Update user's impact score and activity count
+      final userRef = FirebaseFirestore.instance
+          .collection('users')
+          .doc(user.uid);
+
+      batch.update(userRef, {
+        'impactScore': FieldValue.increment(widget.activity.impactPoints),
+        'activitiesJoined': FieldValue.increment(1),
       });
 
       await batch.commit();
@@ -280,6 +296,36 @@ class _ActivityDetailScreenState extends State<ActivityDetailScreen> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
+                  // Impact points badge
+                  Row(
+                    children: [
+                      Container(
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 12, vertical: 6),
+                        decoration: BoxDecoration(
+                          color: const Color(0xFF10B981).withOpacity(0.12),
+                          borderRadius: BorderRadius.circular(20),
+                        ),
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            const Icon(LucideIcons.star,
+                                size: 14, color: Color(0xFF10B981)),
+                            const SizedBox(width: 4),
+                            Text(
+                              '+${widget.activity.impactPoints} eco points',
+                              style: const TextStyle(
+                                fontSize: 13,
+                                fontWeight: FontWeight.w600,
+                                color: Color(0xFF10B981),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 16),
                   const Text(
                     'ABOUT THIS ACTIVITY',
                     style: TextStyle(
@@ -412,10 +458,10 @@ class _ActivityDetailScreenState extends State<ActivityDetailScreen> {
               ),
             ),
             const SizedBox(height: 4),
-            const Text(
-              "We'll send you a reminder before the activity starts.",
+            Text(
+              '+${widget.activity.impactPoints} eco points added to your score!',
               textAlign: TextAlign.center,
-              style: TextStyle(color: Color(0xFF15803D), fontSize: 14),
+              style: const TextStyle(color: Color(0xFF15803D), fontSize: 14),
             ),
           ],
         ),

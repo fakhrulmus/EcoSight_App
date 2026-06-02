@@ -18,8 +18,12 @@ class _ActivityScreenState extends State<ActivityScreen> {
   @override
   void initState() {
     super.initState();
-    _loadUserRole();
-    _seedIfEmpty();
+    _init();
+  }
+
+  Future<void> _init() async {
+    await _loadUserRole();
+    await _seedIfEmpty();
   }
 
   Future<void> _loadUserRole() async {
@@ -39,6 +43,9 @@ class _ActivityScreenState extends State<ActivityScreen> {
   }
 
   Future<void> _seedIfEmpty() async {
+    // Only admins can create events — skip seeding for students
+    if (_userRole != 'admin') return;
+
     try {
       // Check if already seeded by looking for the first seed document
       final check = await FirebaseFirestore.instance
@@ -61,6 +68,7 @@ class _ActivityScreenState extends State<ActivityScreen> {
           'time': '8:00 AM - 12:00 PM',
           'dateTimestamp': Timestamp.fromDate(DateTime(2026, 5, 23, 8, 0)),
           'category': 'general',
+          'impactPoints': 30,
           'participantCount': 0,
           'createdBy': 'system',
           'createdAt': FieldValue.serverTimestamp(),
@@ -75,6 +83,7 @@ class _ActivityScreenState extends State<ActivityScreen> {
           'time': '9:00 AM - 11:00 AM',
           'dateTimestamp': Timestamp.fromDate(DateTime(2026, 5, 24, 9, 0)),
           'category': 'tree',
+          'impactPoints': 50,
           'participantCount': 0,
           'createdBy': 'system',
           'createdAt': FieldValue.serverTimestamp(),
@@ -89,6 +98,7 @@ class _ActivityScreenState extends State<ActivityScreen> {
           'time': '10:00 AM - 4:00 PM',
           'dateTimestamp': Timestamp.fromDate(DateTime(2026, 5, 26, 10, 0)),
           'category': 'general',
+          'impactPoints': 30,
           'participantCount': 0,
           'createdBy': 'system',
           'createdAt': FieldValue.serverTimestamp(),
@@ -103,6 +113,7 @@ class _ActivityScreenState extends State<ActivityScreen> {
           'time': '4:00 PM - 6:00 PM',
           'dateTimestamp': Timestamp.fromDate(DateTime(2026, 5, 27, 16, 0)),
           'category': 'garden',
+          'impactPoints': 40,
           'participantCount': 0,
           'createdBy': 'system',
           'createdAt': FieldValue.serverTimestamp(),

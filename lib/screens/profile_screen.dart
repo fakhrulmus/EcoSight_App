@@ -20,6 +20,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
   String name = "Student";
   String email = "";
   String phone = "";
+  int impactScore = 0;
+  int activitiesJoined = 0;
 
   @override
   void initState() {
@@ -43,6 +45,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
         name = data?['name'] ?? user!.displayName ?? "Student";
         email = data?['email'] ?? user!.email ?? "";
         phone = data?['phone'] ?? "Not added";
+        impactScore = (data?['impactScore'] as int?) ?? 0;
+        activitiesJoined = (data?['activitiesJoined'] as int?) ?? 0;
       });
     } catch (e) {
       setState(() {
@@ -257,7 +261,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
           child: _statCard(
             icon: Icons.eco_outlined,
             title: "Activities",
-            value: "12",
+            value: "$activitiesJoined",
             subtitle: "Total joined",
             color: primaryGreen,
             bgColor: const Color(0xFFEAF8F0),
@@ -266,12 +270,12 @@ class _ProfileScreenState extends State<ProfileScreen> {
         const SizedBox(width: 14),
         Expanded(
           child: _statCard(
-            icon: Icons.access_time,
-            title: "Hours",
-            value: "41",
-            subtitle: "Volunteer time",
-            color: const Color(0xFF2563EB),
-            bgColor: const Color(0xFFEFF6FF),
+            icon: Icons.stars_outlined,
+            title: "Eco Points",
+            value: "$impactScore",
+            subtitle: "Impact score",
+            color: const Color(0xFFF59E0B),
+            bgColor: const Color(0xFFFFFBEB),
           ),
         ),
       ],
@@ -359,11 +363,26 @@ class _ProfileScreenState extends State<ProfileScreen> {
             style: TextStyle(color: greyText, fontSize: 15),
           ),
           const SizedBox(height: 22),
-          _impactBar("CO₂ Offset", "85 kg", 0.85, primaryGreen),
+          _impactBar(
+            "CO₂ Offset",
+            "${(impactScore * 0.4).round()} kg",
+            (impactScore / 250).clamp(0.0, 1.0),
+            primaryGreen,
+          ),
           const SizedBox(height: 18),
-          _impactBar("Waste Collected", "32 kg", 0.65, const Color(0xFF2563EB)),
+          _impactBar(
+            "Waste Collected",
+            "${(impactScore * 0.2).round()} kg",
+            (impactScore / 250).clamp(0.0, 1.0),
+            const Color(0xFF2563EB),
+          ),
           const SizedBox(height: 18),
-          _impactBar("Trees Planted", "18", 0.45, const Color(0xFF10B981)),
+          _impactBar(
+            "Trees Planted",
+            "${(impactScore / 50).floor()}",
+            (impactScore / 500).clamp(0.0, 1.0),
+            const Color(0xFF10B981),
+          ),
         ],
       ),
     );
@@ -467,6 +486,37 @@ class _ProfileScreenState extends State<ProfileScreen> {
   }
 
   Widget _buildAchievements() {
+    final badges = [
+      {
+        'icon': Icons.eco_outlined,
+        'title': 'First Step',
+        'subtitle': 'Join your first activity',
+        'unlocked': activitiesJoined >= 1,
+        'requirement': 1,
+      },
+      {
+        'icon': Icons.local_florist_outlined,
+        'title': 'Eco Enthusiast',
+        'subtitle': 'Reach 50 eco points',
+        'unlocked': impactScore >= 50,
+        'requirement': 50,
+      },
+      {
+        'icon': Icons.military_tech_outlined,
+        'title': 'Eco Warrior',
+        'subtitle': 'Reach 150 eco points',
+        'unlocked': impactScore >= 150,
+        'requirement': 150,
+      },
+      {
+        'icon': Icons.emoji_events_outlined,
+        'title': 'Green Champion',
+        'subtitle': 'Reach 300 eco points',
+        'unlocked': impactScore >= 300,
+        'requirement': 300,
+      },
+    ];
+
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.all(22),
@@ -492,17 +542,20 @@ class _ProfileScreenState extends State<ProfileScreen> {
             style: TextStyle(color: greyText, fontSize: 15),
           ),
           const SizedBox(height: 20),
-          _achievementTile(
-            icon: Icons.eco_outlined,
-            title: "Eco Warrior",
-            subtitle: "Joined 10+ activities",
-          ),
-          const SizedBox(height: 14),
-          _achievementTile(
-            icon: Icons.groups_outlined,
-            title: "Team Player",
-            subtitle: "Active participant",
-          ),
+          ...badges.asMap().entries.map((entry) {
+            final i = entry.key;
+            final badge = entry.value;
+            final unlocked = badge['unlocked'] as bool;
+            return Padding(
+              padding: EdgeInsets.only(bottom: i < badges.length - 1 ? 14 : 0),
+              child: _achievementTile(
+                icon: badge['icon'] as IconData,
+                title: badge['title'] as String,
+                subtitle: badge['subtitle'] as String,
+                unlocked: unlocked,
+              ),
+            );
+          }),
         ],
       ),
     );
@@ -512,13 +565,21 @@ class _ProfileScreenState extends State<ProfileScreen> {
     required IconData icon,
     required String title,
     required String subtitle,
+    required bool unlocked,
   }) {
     return Row(
       children: [
         CircleAvatar(
           radius: 27,
-          backgroundColor: const Color(0xFFFEF3C7),
-          child: Icon(icon, color: const Color(0xFFF59E0B)),
+          backgroundColor: unlocked
+              ? const Color(0xFFFEF3C7)
+              : const Color(0xFFF1F5F9),
+          child: Icon(
+            icon,
+            color: unlocked
+                ? const Color(0xFFF59E0B)
+                : const Color(0xFFCBD5E1),
+          ),
         ),
         const SizedBox(width: 16),
         Expanded(
@@ -528,21 +589,28 @@ class _ProfileScreenState extends State<ProfileScreen> {
               Text(
                 title,
                 style: TextStyle(
-                  color: darkText,
+                  color: unlocked ? darkText : const Color(0xFF94A3B8),
                   fontSize: 18,
                   fontWeight: FontWeight.bold,
                 ),
               ),
               Text(
                 subtitle,
-                style: TextStyle(color: greyText, fontSize: 14),
+                style: TextStyle(
+                  color: unlocked ? greyText : const Color(0xFFCBD5E1),
+                  fontSize: 14,
+                ),
               ),
             ],
           ),
         ),
-        const Icon(
-          Icons.workspace_premium_outlined,
-          color: Color(0xFFF59E0B),
+        Icon(
+          unlocked
+              ? Icons.workspace_premium_outlined
+              : Icons.lock_outline,
+          color: unlocked
+              ? const Color(0xFFF59E0B)
+              : const Color(0xFFCBD5E1),
         ),
       ],
     );
