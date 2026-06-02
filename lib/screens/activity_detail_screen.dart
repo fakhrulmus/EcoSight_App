@@ -106,19 +106,27 @@ class _ActivityDetailScreenState extends State<ActivityDetailScreen> {
         });
       }
     } catch (_) {
-      if (mounted) setState(() => _isCheckingJoin = false);
+      if (mounted) {
+        setState(() => _isCheckingJoin = false);
+      }
     }
   }
 
   Future<void> _handleJoin() async {
     final user = FirebaseAuth.instance.currentUser;
-    if (user == null) return;
+    if (user == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Please log in to join activities.')),
+      );
+      return;
+    }
 
     setState(() => _isJoining = true);
 
     try {
       final batch = FirebaseFirestore.instance.batch();
 
+      // 1. Write to event subcollection
       final participantRef = FirebaseFirestore.instance
           .collection('events')
           .doc(widget.activity.id)
@@ -132,6 +140,23 @@ class _ActivityDetailScreenState extends State<ActivityDetailScreen> {
         'joinedAt': FieldValue.serverTimestamp(),
       });
 
+      // 2. Write to root-level participation collection for History tab (US-08)
+      final participationRef = FirebaseFirestore.instance
+          .collection('participation')
+          .doc(); // Auto-generated document ID
+
+      batch.set(participationRef, {
+        'userId': user.uid,
+        'activityId': widget.activity.id,
+        'activityName': widget.activity.title,
+        'activityDate': widget.activity.date,
+        'activityTime': widget.activity.time,
+        'activityLocation': widget.activity.location,
+        'joinDate': FieldValue.serverTimestamp(),
+        'status': 'Joined',
+      });
+
+      // 3. Increment participant count in original event document
       final eventRef = FirebaseFirestore.instance
           .collection('events')
           .doc(widget.activity.id);
@@ -147,6 +172,13 @@ class _ActivityDetailScreenState extends State<ActivityDetailScreen> {
           _isJoined = true;
           _participantCount++;
           _isJoining = false;
+        });
+
+        // Simulating visual feedback delay before popping back, if applicable
+        Future.delayed(const Duration(seconds: 2), () {
+          if (mounted) {
+            Navigator.pop(context, true); // Return true to indicate joined
+          }
         });
       }
     } catch (e) {
@@ -164,8 +196,7 @@ class _ActivityDetailScreenState extends State<ActivityDetailScreen> {
       context: context,
       builder: (ctx) => AlertDialog(
         title: const Text('Delete Event'),
-        content: Text(
-            'Delete "${widget.activity.title}"? This cannot be undone.'),
+        content: Text('Delete "${widget.activity.title}"? This cannot be undone.'),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(ctx, false),
@@ -173,8 +204,7 @@ class _ActivityDetailScreenState extends State<ActivityDetailScreen> {
           ),
           TextButton(
             onPressed: () => Navigator.pop(ctx, true),
-            child: const Text('Delete',
-                style: TextStyle(color: Colors.red)),
+            child: const Text('Delete', style: TextStyle(color: Colors.red)),
           ),
         ],
       ),
@@ -217,12 +247,9 @@ class _ActivityDetailScreenState extends State<ActivityDetailScreen> {
                       onTap: () => Navigator.pop(context),
                       child: Row(
                         children: const [
-                          Icon(LucideIcons.arrowLeft,
-                              color: Colors.white, size: 20),
+                          Icon(LucideIcons.arrowLeft, color: Colors.white, size: 20),
                           SizedBox(width: 8),
-                          Text('Back',
-                              style: TextStyle(
-                                  color: Colors.white, fontSize: 16)),
+                          Text('Back', style: TextStyle(color: Colors.white, fontSize: 16)),
                         ],
                       ),
                     ),
@@ -235,8 +262,7 @@ class _ActivityDetailScreenState extends State<ActivityDetailScreen> {
                             color: Colors.white.withOpacity(0.2),
                             borderRadius: BorderRadius.circular(8),
                           ),
-                          child: const Icon(LucideIcons.trash2,
-                              color: Colors.white, size: 20),
+                          child: const Icon(LucideIcons.trash2, color: Colors.white, size: 20),
                         ),
                       ),
                   ],
@@ -440,8 +466,7 @@ class _ActivityDetailScreenState extends State<ActivityDetailScreen> {
             ? const SizedBox(
                 height: 24,
                 width: 24,
-                child: CircularProgressIndicator(
-                    color: Colors.white, strokeWidth: 2),
+                child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2),
               )
             : const Text(
                 'Join Activity',
@@ -471,8 +496,7 @@ class _ActivityDetailScreenState extends State<ActivityDetailScreen> {
               ),
               Text(
                 subtitle,
-                style: const TextStyle(
-                    color: Color(0xFF4B5563), fontSize: 14),
+                style: const TextStyle(color: Color(0xFF4B5563), fontSize: 14),
               ),
             ],
           ),

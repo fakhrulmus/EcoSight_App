@@ -254,13 +254,22 @@ class _ProfileScreenState extends State<ProfileScreen> {
     return Row(
       children: [
         Expanded(
-          child: _statCard(
-            icon: Icons.eco_outlined,
-            title: "Activities",
-            value: "12",
-            subtitle: "Total joined",
-            color: primaryGreen,
-            bgColor: const Color(0xFFEAF8F0),
+          child: StreamBuilder<QuerySnapshot>(
+            stream: FirebaseFirestore.instance
+                .collection('participation')
+                .where('userId', isEqualTo: user?.uid ?? '')
+                .snapshots(),
+            builder: (context, snapshot) {
+              final count = snapshot.hasData ? snapshot.data!.docs.length : 0;
+              return _statCard(
+                icon: Icons.eco_outlined,
+                title: "Activities",
+                value: count.toString(),
+                subtitle: "Total joined",
+                color: primaryGreen,
+                bgColor: const Color(0xFFEAF8F0),
+              );
+            },
           ),
         ),
         const SizedBox(width: 14),
