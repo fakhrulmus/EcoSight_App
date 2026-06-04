@@ -1,10 +1,49 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:lucide_icons/lucide_icons.dart';
-import 'package:firebase_auth/firebase_auth.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
 
-class HomeScreen extends StatelessWidget {
+class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
+
+  @override
+  State<HomeScreen> createState() => _HomeScreenState();
+}
+
+class _HomeScreenState extends State<HomeScreen> {
+  String _firstName = 'there';
+  int _activitiesJoined = 0;
+  int _impactScore = 0;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadUserStats();
+  }
+
+  Future<void> _loadUserStats() async {
+    final user = FirebaseAuth.instance.currentUser;
+    if (user == null) return;
+
+    try {
+      final doc = await FirebaseFirestore.instance
+          .collection('users')
+          .doc(user.uid)
+          .get();
+      final data = doc.data();
+      if (mounted) {
+        setState(() {
+          final fullName =
+              (data?['name'] ?? user.displayName ?? '') as String;
+          _firstName = fullName.isNotEmpty
+              ? fullName.split(' ').first
+              : 'there';
+          _activitiesJoined = (data?['activitiesJoined'] as int?) ?? 0;
+          _impactScore = (data?['impactScore'] as int?) ?? 0;
+        });
+      }
+    } catch (_) {}
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -15,23 +54,23 @@ class HomeScreen extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              const Text(
+              Text(
                 'Welcome back,',
-                style: TextStyle(
+                style: const TextStyle(
                   fontSize: 16,
                   color: Color(0xFF6B7280),
                 ),
               ),
-              const Text(
-                'Eco Warrior! 🌿',
-                style: TextStyle(
+              Text(
+                '$_firstName! 🌿',
+                style: const TextStyle(
                   fontSize: 28,
                   fontWeight: FontWeight.bold,
                   color: Color(0xFF111827),
                 ),
               ),
               const SizedBox(height: 32),
-              
+
               // Impact Card
               Container(
                 padding: const EdgeInsets.all(24),
@@ -54,8 +93,8 @@ class HomeScreen extends StatelessWidget {
                   children: [
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        const Text(
+                      children: const [
+                        Text(
                           'Your Eco Impact',
                           style: TextStyle(
                             color: Colors.white,
@@ -63,15 +102,15 @@ class HomeScreen extends StatelessWidget {
                             fontWeight: FontWeight.bold,
                           ),
                         ),
-                        const Icon(LucideIcons.trendingUp, color: Colors.white),
+                        Icon(LucideIcons.trendingUp, color: Colors.white),
                       ],
                     ),
                     const SizedBox(height: 24),
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceAround,
                       children: [
-                        _buildStat('12', 'Trees'),
-                        _buildStat('45kg', 'Recycled'),
+                        _buildStat('$_impactScore', 'Eco Points'),
+                        _buildStat('${(_impactScore / 50).floor()}', 'Trees Est.'),
                         StreamBuilder<QuerySnapshot>(
                           stream: FirebaseFirestore.instance
                               .collection('participation')
@@ -87,7 +126,7 @@ class HomeScreen extends StatelessWidget {
                   ],
                 ),
               ),
-              
+
               const SizedBox(height: 32),
               const Text(
                 'Quick Actions',
@@ -98,7 +137,7 @@ class HomeScreen extends StatelessWidget {
                 ),
               ),
               const SizedBox(height: 16),
-              
+
               GridView.count(
                 shrinkWrap: true,
                 physics: const NeverScrollableScrollPhysics(),

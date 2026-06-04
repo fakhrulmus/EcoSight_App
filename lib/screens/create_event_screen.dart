@@ -17,9 +17,19 @@ class _CreateEventScreenState extends State<CreateEventScreen> {
   DateTime? _selectedDate;
   TimeOfDay? _startTime;
   TimeOfDay? _endTime;
+  String _selectedCategory = 'general';
   bool _isLoading = false;
 
   static const _green = Color(0xFF10B981);
+
+  static const _categoryOptions = [
+    {'value': 'general', 'label': 'General Activity', 'points': 30},
+    {'value': 'tree', 'label': 'Tree Planting', 'points': 50},
+    {'value': 'garden', 'label': 'Community Garden', 'points': 40},
+  ];
+
+  int get _impactPoints =>
+      (_categoryOptions.firstWhere((c) => c['value'] == _selectedCategory)['points'] as int);
 
   @override
   void dispose() {
@@ -117,7 +127,8 @@ class _CreateEventScreenState extends State<CreateEventScreen> {
           _startTime!.hour,
           _startTime!.minute,
         )),
-        'category': 'general',
+        'category': _selectedCategory,
+        'impactPoints': _impactPoints,
         'createdBy': user?.uid ?? '',
         'createdAt': FieldValue.serverTimestamp(),
       });
@@ -208,6 +219,78 @@ class _CreateEventScreenState extends State<CreateEventScreen> {
                 onTap: _pickEndTime,
                 hasValue: _endTime != null,
               ),
+            ]),
+            const SizedBox(height: 16),
+            _buildCard(children: [
+              Text(
+                'Category & Impact',
+                style: const TextStyle(
+                  fontSize: 13,
+                  fontWeight: FontWeight.w600,
+                  color: Color(0xFF374151),
+                ),
+              ),
+              const SizedBox(height: 10),
+              ...(_categoryOptions.map((cat) {
+                final isSelected = _selectedCategory == cat['value'];
+                return GestureDetector(
+                  onTap: () =>
+                      setState(() => _selectedCategory = cat['value'] as String),
+                  child: Container(
+                    margin: const EdgeInsets.only(bottom: 8),
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 14, vertical: 12),
+                    decoration: BoxDecoration(
+                      color: isSelected
+                          ? _green.withOpacity(0.08)
+                          : const Color(0xFFF9FAFB),
+                      borderRadius: BorderRadius.circular(12),
+                      border: Border.all(
+                        color: isSelected ? _green : const Color(0xFFE5E7EB),
+                        width: isSelected ? 2 : 1,
+                      ),
+                    ),
+                    child: Row(
+                      children: [
+                        Expanded(
+                          child: Text(
+                            cat['label'] as String,
+                            style: TextStyle(
+                              fontSize: 15,
+                              fontWeight: isSelected
+                                  ? FontWeight.w600
+                                  : FontWeight.normal,
+                              color: isSelected
+                                  ? const Color(0xFF065F46)
+                                  : const Color(0xFF374151),
+                            ),
+                          ),
+                        ),
+                        Container(
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 10, vertical: 4),
+                          decoration: BoxDecoration(
+                            color: isSelected
+                                ? _green
+                                : const Color(0xFFE5E7EB),
+                            borderRadius: BorderRadius.circular(20),
+                          ),
+                          child: Text(
+                            '+${cat['points']} pts',
+                            style: TextStyle(
+                              fontSize: 12,
+                              fontWeight: FontWeight.bold,
+                              color: isSelected
+                                  ? Colors.white
+                                  : const Color(0xFF6B7280),
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                );
+              })),
             ]),
             const SizedBox(height: 16),
             _buildCard(children: [
