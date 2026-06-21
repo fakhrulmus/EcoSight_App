@@ -132,7 +132,11 @@ class _ActivityDetailScreenState extends State<ActivityDetailScreen> {
     try {
       final batch = FirebaseFirestore.instance.batch();
 
+<<<<<<< HEAD
       // Record in event subcollection (for admin participant tracking)
+=======
+      // 1. Record participation (Write to event subcollection)
+>>>>>>> main
       final participantRef = FirebaseFirestore.instance
           .collection('events')
           .doc(widget.activity.id)
@@ -147,9 +151,17 @@ class _ActivityDetailScreenState extends State<ActivityDetailScreen> {
         'joinedAt': FieldValue.serverTimestamp(),
       });
 
+<<<<<<< HEAD
       // Record in flat participation collection (for student history view)
       final participationRef =
           FirebaseFirestore.instance.collection('participation').doc();
+=======
+      // 2. Write to root-level participation collection for History tab
+      final participationRef = FirebaseFirestore.instance
+          .collection('participation')
+          .doc(); // Auto-generated document ID
+
+>>>>>>> main
       batch.set(participationRef, {
         'userId': user.uid,
         'activityId': widget.activity.id,
@@ -161,6 +173,10 @@ class _ActivityDetailScreenState extends State<ActivityDetailScreen> {
         'status': 'Joined',
       });
 
+<<<<<<< HEAD
+=======
+      // 3. Increment participant count in original event document
+>>>>>>> main
       final eventRef = FirebaseFirestore.instance
           .collection('events')
           .doc(widget.activity.id);
@@ -169,7 +185,7 @@ class _ActivityDetailScreenState extends State<ActivityDetailScreen> {
         'participantCount': FieldValue.increment(1),
       });
 
-      // Update user's impact score and activity count
+      // 4. Update user's impact score and activity count
       final userRef = FirebaseFirestore.instance
           .collection('users')
           .doc(user.uid);
