@@ -6,6 +6,7 @@ import 'admin_dashboard_screen.dart';
 import 'activity_screen.dart';
 import 'home_screen.dart';
 import 'profile_screen.dart';
+import 'participation_history_screen.dart';
 
 class MainNavigationScreen extends StatefulWidget {
   const MainNavigationScreen({super.key});
@@ -49,6 +50,7 @@ class _MainNavigationScreenState extends State<MainNavigationScreen> {
       : [
           const HomeScreen(),
           const ActivityScreen(),
+          const ParticipationHistoryScreen(),
           const ProfileScreen(),
         ];
 
@@ -90,6 +92,13 @@ class _MainNavigationScreenState extends State<MainNavigationScreen> {
               child: Icon(LucideIcons.calendar, size: 24),
             ),
             label: 'Activities',
+          ),
+          BottomNavigationBarItem(
+            icon: Padding(
+              padding: EdgeInsets.only(bottom: 4),
+              child: Icon(LucideIcons.history, size: 24),
+            ),
+            label: 'History',
           ),
           BottomNavigationBarItem(
             icon: Padding(
