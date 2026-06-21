@@ -216,7 +216,7 @@ class _LoginScreenState extends State<LoginScreen> {
                                   'Remember me',
                                   style: TextStyle(
                                     fontSize: 14,
-                                    color: Color(0xFF047857), // Teal text
+                                    color: Color(0xFF10B981), // Teal text
                                     fontWeight: FontWeight.w500,
                                   ),
                                 ),
@@ -233,7 +233,7 @@ class _LoginScreenState extends State<LoginScreen> {
                                 'Forgot password?',
                                 style: TextStyle(
                                   fontSize: 14,
-                                  color: Color(0xFF047857), // Teal text
+                                  color: Color(0xFF10B981), // Teal text
                                   fontWeight: FontWeight.w500,
                                 ),
                               ),
@@ -291,7 +291,7 @@ class _LoginScreenState extends State<LoginScreen> {
                                 style: TextStyle(
                                   fontSize: 14,
                                   fontWeight: FontWeight.bold,
-                                  color: Color(0xFF047857),
+                                  color: Color(0xFF10B981),
                                 ),
                               ),
                             ),

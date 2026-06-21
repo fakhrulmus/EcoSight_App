@@ -11,8 +11,13 @@ class ParticipationHistoryScreen extends StatefulWidget {
 }
 
 class _ParticipationHistoryScreenState extends State<ParticipationHistoryScreen> {
+<<<<<<< HEAD
+  final Color primaryGreen = const Color(0xFF10B981);
+  final Color darkText = const Color(0xFF111827);
+=======
   final Color primaryGreen = const Color(0xFF00B14F);
   final Color darkText = const Color(0xFF1F2937);
+>>>>>>> main
   final Color greyText = const Color(0xFF6B7280);
 
   User? _currentUser;
@@ -163,9 +168,23 @@ class _ParticipationHistoryScreenState extends State<ParticipationHistoryScreen>
   Widget _buildHeader() {
     return Container(
       width: double.infinity,
+<<<<<<< HEAD
+      padding: const EdgeInsets.fromLTRB(24, 56, 24, 28),
+      decoration: const BoxDecoration(
+        gradient: LinearGradient(
+          colors: [Color(0xFF10B981), Color(0xFF059669)],
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+        ),
+        borderRadius: BorderRadius.only(
+          bottomLeft: Radius.circular(32),
+          bottomRight: Radius.circular(32),
+        ),
+=======
       padding: const EdgeInsets.fromLTRB(24, 64, 24, 24),
       decoration: BoxDecoration(
         color: primaryGreen, // Solid green background exactly like screenshot
+>>>>>>> main
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -174,7 +193,11 @@ class _ParticipationHistoryScreenState extends State<ParticipationHistoryScreen>
             "Participation History",
             style: TextStyle(
               color: Colors.white,
+<<<<<<< HEAD
+              fontSize: 28,
+=======
               fontSize: 32, // Large title text
+>>>>>>> main
               fontWeight: FontWeight.bold,
             ),
           ),
@@ -209,8 +232,13 @@ class _ParticipationHistoryScreenState extends State<ParticipationHistoryScreen>
         border: Border.all(color: const Color(0xFFE5E7EB)), // Subtle outline border
         boxShadow: [
           BoxShadow(
+<<<<<<< HEAD
+            color: Colors.black.withOpacity(0.05),
+            blurRadius: 12,
+=======
             color: Colors.black.withOpacity(0.01),
             blurRadius: 10,
+>>>>>>> main
             offset: const Offset(0, 4),
           ),
         ],
@@ -264,7 +292,11 @@ class _ParticipationHistoryScreenState extends State<ParticipationHistoryScreen>
                           borderRadius: BorderRadius.circular(12),
                         ),
                         child: const Text(
+<<<<<<< HEAD
+                          'Upcoming',
+=======
                           'Participated',
+>>>>>>> main
                           style: TextStyle(
                             color: badgeColor,
                             fontWeight: FontWeight.w500,

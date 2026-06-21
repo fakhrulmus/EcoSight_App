@@ -38,6 +38,9 @@ class Activity {
     );
   }
 
+  static const _green = Color(0xFF10B981);
+  static const _greenDark = Color(0xFF059669);
+
   static IconData _categoryToIcon(String category) {
     switch (category) {
       case 'tree':
@@ -129,7 +132,11 @@ class _ActivityDetailScreenState extends State<ActivityDetailScreen> {
     try {
       final batch = FirebaseFirestore.instance.batch();
 
+<<<<<<< HEAD
+      // Record in event subcollection (for admin participant tracking)
+=======
       // 1. Record participation (Write to event subcollection)
+>>>>>>> main
       final participantRef = FirebaseFirestore.instance
           .collection('events')
           .doc(widget.activity.id)
@@ -144,11 +151,17 @@ class _ActivityDetailScreenState extends State<ActivityDetailScreen> {
         'joinedAt': FieldValue.serverTimestamp(),
       });
 
+<<<<<<< HEAD
+      // Record in flat participation collection (for student history view)
+      final participationRef =
+          FirebaseFirestore.instance.collection('participation').doc();
+=======
       // 2. Write to root-level participation collection for History tab
       final participationRef = FirebaseFirestore.instance
           .collection('participation')
           .doc(); // Auto-generated document ID
 
+>>>>>>> main
       batch.set(participationRef, {
         'userId': user.uid,
         'activityId': widget.activity.id,
@@ -160,7 +173,10 @@ class _ActivityDetailScreenState extends State<ActivityDetailScreen> {
         'status': 'Joined',
       });
 
+<<<<<<< HEAD
+=======
       // 3. Increment participant count in original event document
+>>>>>>> main
       final eventRef = FirebaseFirestore.instance
           .collection('events')
           .doc(widget.activity.id);
@@ -249,8 +265,18 @@ class _ActivityDetailScreenState extends State<ActivityDetailScreen> {
         children: [
           // Header
           Container(
-            padding: const EdgeInsets.fromLTRB(24, 64, 24, 24),
-            decoration: const BoxDecoration(color: Color(0xFF16A34A)),
+            padding: const EdgeInsets.fromLTRB(24, 56, 24, 28),
+            decoration: const BoxDecoration(
+              gradient: LinearGradient(
+                colors: [Color(0xFF10B981), Color(0xFF059669)],
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+              ),
+              borderRadius: BorderRadius.only(
+                bottomLeft: Radius.circular(32),
+                bottomRight: Radius.circular(32),
+              ),
+            ),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -292,7 +318,7 @@ class _ActivityDetailScreenState extends State<ActivityDetailScreen> {
                       ),
                       child: Icon(
                         widget.activity.icon,
-                        color: const Color(0xFF16A34A),
+                        color: const Color(0xFF10B981),
                         size: 32,
                       ),
                     ),
@@ -420,7 +446,7 @@ class _ActivityDetailScreenState extends State<ActivityDetailScreen> {
       return const SizedBox(
         width: double.infinity,
         child: Center(
-          child: CircularProgressIndicator(color: Color(0xFF16A34A)),
+          child: CircularProgressIndicator(color: Color(0xFF10B981)),
         ),
       );
     }
@@ -433,12 +459,12 @@ class _ActivityDetailScreenState extends State<ActivityDetailScreen> {
         decoration: BoxDecoration(
           color: const Color(0xFFF0FDF4),
           borderRadius: BorderRadius.circular(20),
-          border: Border.all(color: const Color(0xFF16A34A), width: 1.5),
+          border: Border.all(color: const Color(0xFF10B981), width: 1.5),
         ),
         child: Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: const [
-            Icon(LucideIcons.shieldCheck, color: Color(0xFF16A34A), size: 20),
+            Icon(LucideIcons.shieldCheck, color: Color(0xFF10B981), size: 20),
             SizedBox(width: 8),
             Text(
               'Admin View — Use trash icon to delete',
@@ -460,14 +486,14 @@ class _ActivityDetailScreenState extends State<ActivityDetailScreen> {
         decoration: BoxDecoration(
           color: const Color(0xFFF0FDF4),
           borderRadius: BorderRadius.circular(24),
-          border: Border.all(color: const Color(0xFF16A34A), width: 2),
+          border: Border.all(color: const Color(0xFF10B981), width: 2),
         ),
         child: Column(
           children: [
             Container(
               padding: const EdgeInsets.all(16),
               decoration: const BoxDecoration(
-                color: Color(0xFF16A34A),
+                color: Color(0xFF10B981),
                 shape: BoxShape.circle,
               ),
               child: const Icon(LucideIcons.check, color: Colors.white, size: 32),
@@ -497,14 +523,14 @@ class _ActivityDetailScreenState extends State<ActivityDetailScreen> {
       child: ElevatedButton(
         onPressed: _isJoining ? null : _handleJoin,
         style: ElevatedButton.styleFrom(
-          backgroundColor: const Color(0xFF16A34A),
+          backgroundColor: const Color(0xFF10B981),
           foregroundColor: Colors.white,
           padding: const EdgeInsets.symmetric(vertical: 20),
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(20),
           ),
           elevation: 8,
-          shadowColor: const Color(0xFF16A34A).withOpacity(0.4),
+          shadowColor: const Color(0xFF10B981).withOpacity(0.4),
         ),
         child: _isJoining
             ? const SizedBox(
@@ -524,7 +550,7 @@ class _ActivityDetailScreenState extends State<ActivityDetailScreen> {
     return Row(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Icon(icon, color: const Color(0xFF16A34A), size: 20),
+        Icon(icon, color: const Color(0xFF10B981), size: 20),
         const SizedBox(width: 12),
         Expanded(
           child: Column(

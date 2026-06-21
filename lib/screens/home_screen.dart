@@ -70,6 +70,57 @@ class _HomeScreenState extends State<HomeScreen> {
               ),
               const SizedBox(height: 32),
 
+<<<<<<< HEAD
+              // Impact Card
+              Container(
+                padding: const EdgeInsets.all(24),
+                decoration: BoxDecoration(
+                  gradient: const LinearGradient(
+                    colors: [Color(0xFF10B981), Color(0xFF059669)],
+                    begin: Alignment.topLeft,
+                    end: Alignment.bottomRight,
+                  ),
+                  borderRadius: BorderRadius.circular(24),
+                  boxShadow: [
+                    BoxShadow(
+                      color: const Color(0xFF10B981).withOpacity(0.3),
+                      blurRadius: 20,
+                      offset: const Offset(0, 10),
+                    ),
+                  ],
+                ),
+                child: Column(
+                  children: [
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: const [
+                        Text(
+                          'Your Eco Impact',
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontSize: 18,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                        Icon(LucideIcons.trendingUp, color: Colors.white),
+                      ],
+                    ),
+                    const SizedBox(height: 24),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceAround,
+                      children: [
+                        _buildStat('$_activitiesJoined', 'Activities'),
+                        _buildStat('$_impactScore', 'Eco Points'),
+                        _buildStat(
+                          '${(_impactScore / 50).floor()}',
+                          'Trees Est.',
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+              ),
+=======
              
 Container(
   padding: const EdgeInsets.all(24),
@@ -105,6 +156,7 @@ Container(
         ],
       ),
       const SizedBox(height: 24),
+>>>>>>> main
 
       
       StreamBuilder<DocumentSnapshot>(
