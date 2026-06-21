@@ -264,7 +264,7 @@ class _ParticipationHistoryScreenState extends State<ParticipationHistoryScreen>
                           borderRadius: BorderRadius.circular(12),
                         ),
                         child: const Text(
-                          'Upcoming',
+                          'Participated',
                           style: TextStyle(
                             color: badgeColor,
                             fontWeight: FontWeight.w500,
