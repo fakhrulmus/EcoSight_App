@@ -17,7 +17,7 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
   List<Map<String, dynamic>> _eventStats = [];
 
   static const _green = Color(0xFF10B981);
-  static const _darkGreen = Color(0xFF047857);
+  static const _darkGreen = Color(0xFF059669);
 
   @override
   void initState() {
@@ -373,7 +373,7 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
     required Color bg,
   }) {
     return Container(
-      padding: const EdgeInsets.all(18),
+      padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
         color: bg,
         borderRadius: BorderRadius.circular(20),

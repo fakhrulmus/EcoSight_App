@@ -12,9 +12,9 @@ class ProfileScreen extends StatefulWidget {
 }
 
 class _ProfileScreenState extends State<ProfileScreen> {
-  final Color primaryGreen = const Color(0xFF00B14F);
-  final Color darkText = const Color(0xFF0F172A);
-  final Color greyText = const Color(0xFF64748B);
+  final Color primaryGreen = const Color(0xFF10B981);
+  final Color darkText = const Color(0xFF111827);
+  final Color greyText = const Color(0xFF6B7280);
 
   User? user;
   String name = "Student";
@@ -72,7 +72,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFF8FAFC),
+      backgroundColor: const Color(0xFFF9FAFB),
       body: SafeArea(
         child: SingleChildScrollView(
           child: Column(
@@ -80,7 +80,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
               _buildHeader(),
               const SizedBox(height: 24),
               Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 22),
+                padding: const EdgeInsets.symmetric(horizontal: 24),
                 child: Column(
                   children: [
                     _buildUserInfoCard(),
@@ -110,12 +110,16 @@ class _ProfileScreenState extends State<ProfileScreen> {
   Widget _buildHeader() {
     return Container(
       width: double.infinity,
-      padding: const EdgeInsets.fromLTRB(28, 35, 28, 45),
-      decoration: BoxDecoration(
-        color: primaryGreen,
-        borderRadius: const BorderRadius.only(
-          bottomLeft: Radius.circular(36),
-          bottomRight: Radius.circular(36),
+      padding: const EdgeInsets.fromLTRB(24, 56, 24, 28),
+      decoration: const BoxDecoration(
+        gradient: LinearGradient(
+          colors: [Color(0xFF10B981), Color(0xFF059669)],
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+        ),
+        borderRadius: BorderRadius.only(
+          bottomLeft: Radius.circular(32),
+          bottomRight: Radius.circular(32),
         ),
       ),
       child: Column(
@@ -125,7 +129,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
             role == 'admin' ? "My Account" : "Your Impact",
             style: const TextStyle(
               color: Colors.white,
-              fontSize: 34,
+              fontSize: 28,
               fontWeight: FontWeight.bold,
             ),
           ),
@@ -139,7 +143,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
               fontSize: 16,
             ),
           ),
-          const SizedBox(height: 28),
+          const SizedBox(height: 20),
           Row(
             children: [
               CircleAvatar(
@@ -207,10 +211,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
     required String value,
   }) {
     return Container(
-      padding: const EdgeInsets.all(18),
+      padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(22),
+        borderRadius: BorderRadius.circular(20),
         boxShadow: [
           BoxShadow(
             color: Colors.black.withOpacity(0.04),
@@ -297,10 +301,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
     required Color bgColor,
   }) {
     return Container(
-      padding: const EdgeInsets.all(18),
+      padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
         color: bgColor,
-        borderRadius: BorderRadius.circular(22),
+        borderRadius: BorderRadius.circular(20),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -346,10 +350,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
   Widget _buildEnvironmentalImpact() {
     return Container(
       width: double.infinity,
-      padding: const EdgeInsets.all(22),
+      padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(22),
+        borderRadius: BorderRadius.circular(20),
         border: Border.all(color: const Color(0xFFE2E8F0)),
       ),
       child: Column(
@@ -435,10 +439,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
     return Container(
       width: double.infinity,
-      padding: const EdgeInsets.all(22),
+      padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(22),
+        borderRadius: BorderRadius.circular(20),
         border: Border.all(color: const Color(0xFFE2E8F0)),
       ),
       child: Column(
@@ -471,7 +475,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         width: 48,
                         height: values[index] * 7,
                         decoration: BoxDecoration(
-                          color: const Color(0xFF16A34A),
+                          color: const Color(0xFF10B981),
                           borderRadius: BorderRadius.circular(10),
                         ),
                       ),
@@ -525,10 +529,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
     return Container(
       width: double.infinity,
-      padding: const EdgeInsets.all(22),
+      padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(22),
+        borderRadius: BorderRadius.circular(20),
         border: Border.all(color: const Color(0xFFE2E8F0)),
       ),
       child: Column(
@@ -640,7 +644,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
           foregroundColor: const Color(0xFFE85D5D),
           side: const BorderSide(color: Color(0xFFE85D5D), width: 1.4),
           shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(18),
+            borderRadius: BorderRadius.circular(16),
           ),
         ),
       ),

@@ -76,7 +76,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 padding: const EdgeInsets.all(24),
                 decoration: BoxDecoration(
                   gradient: const LinearGradient(
-                    colors: [Color(0xFF10B981), Color(0xFF047857)],
+                    colors: [Color(0xFF10B981), Color(0xFF059669)],
                     begin: Alignment.topLeft,
                     end: Alignment.bottomRight,
                   ),

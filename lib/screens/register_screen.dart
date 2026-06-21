@@ -273,7 +273,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                                     TextSpan(
                                       text: 'Terms of Service',
                                       style: const TextStyle(
-                                        color: Color(0xFF047857),
+                                        color: Color(0xFF10B981),
                                         fontWeight: FontWeight.bold,
                                       ),
                                       recognizer: TapGestureRecognizer()..onTap = () {},
@@ -282,7 +282,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                                     TextSpan(
                                       text: 'Privacy Policy',
                                       style: const TextStyle(
-                                        color: Color(0xFF047857),
+                                        color: Color(0xFF10B981),
                                         fontWeight: FontWeight.bold,
                                       ),
                                       recognizer: TapGestureRecognizer()..onTap = () {},
@@ -344,7 +344,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                                 style: TextStyle(
                                   fontSize: 14,
                                   fontWeight: FontWeight.bold,
-                                  color: Color(0xFF047857),
+                                  color: Color(0xFF10B981),
                                 ),
                               ),
                             ),
