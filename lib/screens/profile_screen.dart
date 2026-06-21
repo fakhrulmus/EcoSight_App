@@ -20,6 +20,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
   String name = "Student";
   String email = "";
   String phone = "";
+  String role = "student";
   int impactScore = 0;
   int activitiesJoined = 0;
 
@@ -45,6 +46,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
         name = data?['name'] ?? user!.displayName ?? "Student";
         email = data?['email'] ?? user!.email ?? "";
         phone = data?['phone'] ?? "Not added";
+        role = (data?['role'] ?? 'student') as String;
         impactScore = (data?['impactScore'] as int?) ?? 0;
         activitiesJoined = (data?['activitiesJoined'] as int?) ?? 0;
       });
@@ -83,14 +85,16 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   children: [
                     _buildUserInfoCard(),
                     const SizedBox(height: 20),
-                    _buildImpactCards(),
-                    const SizedBox(height: 20),
-                    _buildEnvironmentalImpact(),
-                    const SizedBox(height: 20),
-                    _buildMonthlyActivity(),
-                    const SizedBox(height: 20),
-                    _buildAchievements(),
-                    const SizedBox(height: 22),
+                    if (role == 'student') ...[
+                      _buildImpactCards(),
+                      const SizedBox(height: 20),
+                      _buildEnvironmentalImpact(),
+                      const SizedBox(height: 20),
+                      _buildMonthlyActivity(),
+                      const SizedBox(height: 20),
+                      _buildAchievements(),
+                      const SizedBox(height: 20),
+                    ],
                     _buildLogoutButton(),
                     const SizedBox(height: 30),
                   ],
@@ -117,18 +121,20 @@ class _ProfileScreenState extends State<ProfileScreen> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text(
-            "Your Impact",
-            style: TextStyle(
+          Text(
+            role == 'admin' ? "My Account" : "Your Impact",
+            style: const TextStyle(
               color: Colors.white,
               fontSize: 34,
               fontWeight: FontWeight.bold,
             ),
           ),
           const SizedBox(height: 8),
-          const Text(
-            "Every action counts towards a better future",
-            style: TextStyle(
+          Text(
+            role == 'admin'
+                ? "Administrator"
+                : "Every action counts towards a better future",
+            style: const TextStyle(
               color: Colors.white,
               fontSize: 16,
             ),
