@@ -7,38 +7,32 @@ class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
 
   @override
- State<HomeScreen> createState() => _HomeScreenState();
+  State<HomeScreen> createState() => _HomeScreenState();
 }
 
 class _HomeScreenState extends State<HomeScreen> {
   String _firstName = 'there';
-  int _activitiesJoined = 0;
 
   @override
   void initState() {
     super.initState();
-    _loadUserStats();
+    _loadUserName();
   }
 
-  Future<void> _loadUserStats() async {
+  Future<void> _loadUserName() async {
     final user = FirebaseAuth.instance.currentUser;
     if (user == null) return;
-
     try {
       final doc = await FirebaseFirestore.instance
           .collection('users')
           .doc(user.uid)
           .get();
-      final data = doc.data();
+      final fullName =
+          (doc.data()?['name'] ?? user.displayName ?? '') as String;
       if (mounted) {
         setState(() {
-          final fullName =
-              (data?['name'] ?? user.displayName ?? '') as String;
           _firstName =
               fullName.isNotEmpty ? fullName.split(' ').first : 'there';
-
-          _activitiesJoined =
-              (data?['activitiesJoined'] as int?) ?? 0;
         });
       }
     } catch (_) {}
@@ -70,7 +64,6 @@ class _HomeScreenState extends State<HomeScreen> {
               ),
               const SizedBox(height: 32),
 
-<<<<<<< HEAD
               // Impact Card
               Container(
                 padding: const EdgeInsets.all(24),
@@ -106,95 +99,42 @@ class _HomeScreenState extends State<HomeScreen> {
                       ],
                     ),
                     const SizedBox(height: 24),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceAround,
-                      children: [
-                        _buildStat('$_activitiesJoined', 'Activities'),
-                        _buildStat('$_impactScore', 'Eco Points'),
-                        _buildStat(
-                          '${(_impactScore / 50).floor()}',
-                          'Trees Est.',
-                        ),
-                      ],
+                    StreamBuilder<DocumentSnapshot>(
+                      stream: FirebaseFirestore.instance
+                          .collection('users')
+                          .doc(FirebaseAuth.instance.currentUser?.uid)
+                          .snapshots(),
+                      builder: (context, snapshot) {
+                        if (!snapshot.hasData || !snapshot.data!.exists) {
+                          return Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceAround,
+                            children: [
+                              _buildStat('0', 'Eco Points'),
+                              _buildStat('0', 'Trees Est.'),
+                              _buildStat('0', 'Activities'),
+                            ],
+                          );
+                        }
+                        final data =
+                            snapshot.data!.data() as Map<String, dynamic>?;
+                        final impact = (data?['impactScore'] ?? 0).toInt();
+                        final activities =
+                            (data?['activitiesJoined'] ?? 0).toInt();
+                        return Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceAround,
+                          children: [
+                            _buildStat('$impact', 'Eco Points'),
+                            _buildStat(
+                                '${(impact / 50).floor()}', 'Trees Est.'),
+                            _buildStat('$activities', 'Activities'),
+                          ],
+                        );
+                      },
                     ),
                   ],
                 ),
               ),
-=======
-             
-Container(
-  padding: const EdgeInsets.all(24),
-  decoration: BoxDecoration(
-    gradient: const LinearGradient(
-      colors: [Color(0xFF10B981), Color(0xFF047857)],
-      begin: Alignment.topLeft,
-      end: Alignment.bottomRight,
-    ),
-    borderRadius: BorderRadius.circular(24),
-    boxShadow: [
-      BoxShadow(
-        color: const Color(0xFF10B981).withOpacity(0.3),
-        blurRadius: 20,
-        offset: const Offset(0, 10),
-      ),
-    ],
-  ),
-  child: Column(
-    children: [
-      Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: const [
-          Text(
-            'Your Eco Impact',
-            style: TextStyle(
-              color: Colors.white,
-              fontSize: 18,
-              fontWeight: FontWeight.bold,
-            ),
-          ),
-          Icon(LucideIcons.trendingUp, color: Colors.white),
-        ],
-      ),
-      const SizedBox(height: 24),
->>>>>>> main
 
-      
-      StreamBuilder<DocumentSnapshot>(
-        stream: FirebaseFirestore.instance
-            .collection('users')
-            .doc(FirebaseAuth.instance.currentUser?.uid)
-            .snapshots(),
-        builder: (context, snapshot) {
-          if (!snapshot.hasData || !snapshot.data!.exists) {
-            return Row(
-              mainAxisAlignment: MainAxisAlignment.spaceAround,
-              children: [
-                _buildStat('0', 'Eco Points'),
-                _buildStat('0', 'Trees Est.'),
-                _buildStat('0', 'Events'),
-              ],
-            );
-          }
-
-          final data =
-              snapshot.data!.data() as Map<String, dynamic>?;
-
-          final impact = (data?['impactScore'] ?? 0).toInt();
-          final events = (data?['activitiesJoined'] ?? 0).toInt();
-
-          return Row(
-            mainAxisAlignment: MainAxisAlignment.spaceAround,
-            children: [
-              _buildStat('$impact', 'Eco Points'),
-              _buildStat('${(impact / 50).floor()}', 'Trees Est.'),
-              _buildStat('$events', 'Events'),
-            ],
-          );
-        },
-      ),
-    ],
-  ),
-),
               const SizedBox(height: 32),
               const Text(
                 'Quick Actions',
@@ -213,14 +153,10 @@ Container(
                 mainAxisSpacing: 16,
                 crossAxisSpacing: 16,
                 children: [
-                  _buildActionCard(
-                      LucideIcons.camera, 'Scan Trash', Colors.blue),
-                  _buildActionCard(
-                      LucideIcons.map, 'Find Centers', Colors.orange),
-                  _buildActionCard(
-                      LucideIcons.award, 'Badges', Colors.purple),
-                  _buildActionCard(
-                      LucideIcons.users, 'Community', Colors.pink),
+                  _buildActionCard(LucideIcons.camera, 'Scan Trash', Colors.blue),
+                  _buildActionCard(LucideIcons.map, 'Find Centers', Colors.orange),
+                  _buildActionCard(LucideIcons.award, 'Badges', Colors.purple),
+                  _buildActionCard(LucideIcons.users, 'Community', Colors.pink),
                 ],
               ),
             ],
@@ -252,8 +188,7 @@ Container(
     );
   }
 
-  Widget _buildActionCard(
-      IconData icon, String label, Color color) {
+  Widget _buildActionCard(IconData icon, String label, Color color) {
     return Container(
       decoration: BoxDecoration(
         color: Colors.white,

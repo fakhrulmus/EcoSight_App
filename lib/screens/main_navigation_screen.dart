@@ -19,7 +19,6 @@ class _MainNavigationScreenState extends State<MainNavigationScreen> {
   int _currentIndex = 0;
   String _userRole = 'student';
 
-<<<<<<< HEAD
   @override
   void initState() {
     super.initState();
@@ -109,14 +108,6 @@ class _MainNavigationScreenState extends State<MainNavigationScreen> {
             label: 'Profile',
           ),
         ];
-=======
-  final List<Widget> _screens = [
-    const HomeScreen(),
-    const ActivityScreen(),
-    const ParticipationHistoryScreen(),
-    const ProfileScreen(),
-  ];
->>>>>>> main
 
   @override
   Widget build(BuildContext context) {
@@ -144,40 +135,7 @@ class _MainNavigationScreenState extends State<MainNavigationScreen> {
             fontWeight: FontWeight.w500,
           ),
           elevation: 0,
-<<<<<<< HEAD
           items: _navItems,
-=======
-          items: const [
-            BottomNavigationBarItem(
-              icon: Padding(
-                padding: EdgeInsets.only(bottom: 4),
-                child: Icon(LucideIcons.home, size: 24),
-              ),
-              label: 'Home',
-            ),
-            BottomNavigationBarItem(
-              icon: Padding(
-                padding: EdgeInsets.only(bottom: 4),
-                child: Icon(LucideIcons.calendar, size: 24),
-              ),
-              label: 'Activities',
-            ),
-            BottomNavigationBarItem(
-              icon: Padding(
-                padding: EdgeInsets.only(bottom: 4),
-                child: Icon(LucideIcons.history, size: 24),
-              ),
-              label: 'History',
-            ),
-            BottomNavigationBarItem(
-              icon: Padding(
-                padding: EdgeInsets.only(bottom: 4),
-                child: Icon(LucideIcons.user, size: 24),
-              ),
-              label: 'Profile',
-            ),
-          ],
->>>>>>> main
         ),
       ),
     );
